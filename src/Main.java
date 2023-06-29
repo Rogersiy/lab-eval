@@ -1,17 +1,41 @@
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.gson.Gson;
+
 public class Main {
-    public static void main(String[] args) {
-        // Press Opt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        // Press Ctrl+R or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+    public static void main(String[] args) throws IOException {
 
-            // Press Ctrl+D to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Cmd+F8.
-            System.out.println("i = " + i);
-        }
+        String currentWorkingDirectory = System.getProperty("user.dir");
+        String resultFilePath = currentWorkingDirectory +"/python/infer.json";
+        String annFilePath = currentWorkingDirectory+ "/python/instances_val2017.json";
+        Gson gson = new Gson();
+
+        Map<String, String> data = new HashMap<>();
+        data.put("result_file", resultFilePath);
+        data.put("ann_file", annFilePath);
+
+        // Create json string
+        String jsonString = gson.toJson(data);
+
+        // Send post request
+        URL url = new URL("http://127.0.0.1:5000/evaluate");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; utf-8"); // Set Content-Type to application/json
+        conn.setDoOutput(true);
+        conn.getOutputStream().write(jsonString.getBytes(StandardCharsets.UTF_8));
+
+        // Get the response
+        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String response = reader.readLine();
+        Map<String, Double> result = gson.fromJson(response, Map.class);
+
+        // Print the result
+        System.out.println(result);
     }
 }
