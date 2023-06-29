@@ -34,7 +34,6 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String response = reader.readLine();
         Map<String, Double> result = gson.fromJson(response, Map.class);
-
         // Print the result
         System.out.println(result);
     }
